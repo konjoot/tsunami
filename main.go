@@ -19,12 +19,7 @@ func init() {
 func main() {
 	defer func() { ExitIf(recover()) }()
 
-	var (
-		file *os.File
-		err  error
-	)
-
-	file, err = os.Create("graph.html")
+	file, err := os.Create("graph.html")
 	defer file.Close()
 	ExitIf(err)
 
