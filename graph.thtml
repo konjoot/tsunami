@@ -2,36 +2,106 @@
 <html>
 
 <head>
-  <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-  <meta content="utf-8" http-equiv="encoding">
-  <title>Graph2d | Basic Example</title>
+  <title>D3 | Experiments</title>
 
-  <style type="text/css">
-    body, html {
-      font-family: sans-serif;
+  <meta charset="utf-8">
+  <style>
+
+    .chart rect {
+      fill: steelblue;
     }
+
+    .chart text {
+      fill: white;
+      font: 10px sans-serif;
+      text-anchor: middle;
+    }
+
   </style>
-
-  <link href="https://rawgit.com/almende/vis/111c9984bc4c1870d42ca96b45d90c13cb92fe0a/dist/vis.min.css" rel="stylesheet" type="text/css" />
-  <script src="https://rawgit.com/almende/vis/111c9984bc4c1870d42ca96b45d90c13cb92fe0a/dist/vis.min.js"></script>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
 </head>
 <body>
-<h2>Graph2d testing</h2>
+<h2>Testing D3</h2>
 <div style="width:700px; font-size:14px; text-align: justify;">
-<!-- a place for description -->
+
 </div>
 <br />
-<div id="visualization"></div>
+<svg class="chart"></svg>
 
 <script type="text/javascript">
+  var data = [
+    {time: 1, min: 5, max:10},
+    {time: 2, min: 5, max:11},
+    {time: 3, min: 5, max:12},
+    {time: 4, min: 7, max:13},
+    {time: 5, min: 9, max:14},
+    {time: 6, min: 5, max:15},
+    {time: 7, min: 5, max:16},
+    {time: 8, min: 11, max:17},
+    {time: 9, min: 10, max:16},
+    {time: 10, min: 15, max:16},
+    {time: 11, min: 18, max:15},
+    {time: 12, min: 10, max:15},
+    {time: 13, min: 19, max:16},
+    {time: 14, min: 10, max:20},
+    {time: 15, min: 10, max:21},
+    {time: 16, min: 14, max:25},
+    {time: 17, min: 15, max:27},
+    {time: 18, min: 16, max:20},
+    {time: 19, min: 17, max:22},
+    {time: 20, min: 13, max:20},
+    {time: 21, min: 10, max:27},
+    {time: 22, min: 15, max:26},
+    {time: 23, min: 10, max:27},
+    {time: 24, min: 10, max:20},
+    {time: 25, min: 10, max:29},
+    {time: 26, min: 25, max:40},
+    {time: 27, min: 30, max:45},
+    {time: 28, min: 19, max:40},
+    {time: 29, min: 20, max:40},
+    {time: 30, min: 14, max:48},
+    {time: 31, min: 15, max:25},
+    {time: 32, min: 10, max:20},
+    {time: 33, min: 7, max:20},
+    {time: 34, min: 5, max:10}
+  ];
 
-  var container = document.getElementById('visualization');
-  var items = {{.Items}};
+  var width = 960,
+      height = 500;
 
-  var dataset = new vis.DataSet(items);
-  var options = {};
-  var graph2d = new vis.Graph2d(container, dataset, options);
+  var y = d3.scale.linear()
+      .domain([0, d3.max(data, function(d) { return d.max; })])
+      .range([height, 0]);
+
+  var chart = d3.select(".chart")
+      .attr("width", width)
+      .attr("height", height);
+
+  // d3.tsv("data.tsv", type, function(error, data) {
+
+    var barWidth = width / data.length;
+
+    var bar = chart.selectAll("g")
+        .data(data)
+      .enter().append("g")
+        .attr("transform", function(d, i) { return "translate(" + i * barWidth + ",0)"; });
+
+    bar.append("rect")
+        .attr("y", function(d) { return y(d.max); })
+        .attr("height", function(d) { return height - y(d.max); })
+        .attr("width", barWidth - 20);
+
+    bar.append("text")
+        .attr("x", barWidth / 2)
+        .attr("y", function(d) { return y(d.max) + 3; })
+        .attr("dy", ".75em")
+        .text(function(d) { return d.max; });
+
+
+  function type(d) {
+    d.max = +d.max; // coerce to number
+    return d;
+  }
 </script>
 </body>
 </html>
