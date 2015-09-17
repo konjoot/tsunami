@@ -1,107 +1,152 @@
-<!DOCTYPE HTML>
-<html>
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
 
-<head>
-  <title>D3 | Experiments</title>
+.bar {
+  fill: #FF5722;
+}
 
-  <meta charset="utf-8">
-  <style>
+.bar:hover {
+  fill: #FFC107;
+}
 
-    .chart rect {
-      fill: steelblue;
-    }
+.bar-min {
+  fill: #727272;
+}
 
-    .chart text {
-      fill: white;
-      font: 10px sans-serif;
-      text-anchor: middle;
-    }
+.bar-min:hover {
+  fill: #FFC107;
+}
 
-  </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
-</head>
+.axis {
+  font: 10px sans-serif;
+  fill: #727272;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #212121;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  /*display: none;*/
+}
+
+</style>
 <body>
-<h2>Testing D3</h2>
-<div style="width:700px; font-size:14px; text-align: justify;">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+<script>
 
-</div>
-<br />
-<svg class="chart"></svg>
+var margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width = 760 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom;
+    data = [
+      {letter: 1,  max: 0.18167, min: 0.04167},
+      {letter: 2,  max: 0.11492, min: 0.01492},
+      {letter: 3,  max: 0.12782, min: 0.02782},
+      {letter: 4,  max: 0.14253, min: 0.04253},
+      {letter: 5,  max: 0.12702, min: 0.12702},
+      {letter: 6,  max: 0.12288, min: 0.02288},
+      {letter: 7,  max: 0.12015, min: 0.02015},
+      {letter: 8,  max: 0.16094, min: 0.06094},
+      {letter: 9,  max: 0.16966, min: 0.06966},
+      {letter: 10, max: 0.10153, min: 0.00153},
+      {letter: 11, max: 0.10772, min: 0.00772},
+      {letter: 12, max: 0.14025, min: 0.04025},
+      {letter: 13, max: 0.12406, min: 0.02406},
+      {letter: 14, max: 0.16749, min: 0.06749},
+      {letter: 15, max: 0.17507, min: 0.07507},
+      {letter: 16, max: 0.11929, min: 0.01929},
+      {letter: 17, max: 0.10095, min: 0.00095},
+      {letter: 18, max: 0.15987, min: 0.05987},
+      {letter: 19, max: 0.16327, min: 0.06327},
+      {letter: 20, max: 0.19056, min: 0.09056},
+      {letter: 21, max: 0.12758, min: 0.02758},
+      {letter: 22, max: 0.10978, min: 0.00978},
+      {letter: 23, max: 0.12360, min: 0.02360},
+      {letter: 24, max: 0.10150, min: 0.00150},
+      {letter: 25, max: 0.11974, min: 0.01974},
+      {letter: 26, max: 0.12974, min: 0.02974},
+      {letter: 27, max: 0.15974, min: 0.05974},
+      {letter: 28, max: 0.11674, min: 0.11674},
+      {letter: 29, max: 0.11574, min: 0.01574},
+      {letter: 30, max: 0.11774, min: 0.11774},
+      {letter: 31, max: 0.11974, min: 0.11974},
+      {letter: 32, max: 0.11074, min: 0.01074},
+      {letter: 33, max: 0.11984, min: 0.11984},
+      {letter: 34, max: 0.11926, min: 0.11926},
+      {letter: 35, max: 0.11574, min: 0.01574},
+      {letter: 36, max: 0.11174, min: 0.01174},
+      {letter: 37, max: 0.11274, min: 0.11274},
+      {letter: 38, max: 0.11374, min: 0.11374},
+      {letter: 39, max: 0.11474, min: 0.11474},
+      {letter: 40, max: 0.11574, min: 0.11574},
+      {letter: 41, max: 0.11674, min: 0.01674},
+      {letter: 42, max: 0.11774, min: 0.01774},
+      {letter: 43, max: 0.11874, min: 0.01874},
+      {letter: 44, max: 0.10274, min: 0.00274}
+    ];
 
-<script type="text/javascript">
-  var data = [
-    {time: 1, min: 5, max:10},
-    {time: 2, min: 5, max:11},
-    {time: 3, min: 5, max:12},
-    {time: 4, min: 7, max:13},
-    {time: 5, min: 9, max:14},
-    {time: 6, min: 5, max:15},
-    {time: 7, min: 5, max:16},
-    {time: 8, min: 11, max:17},
-    {time: 9, min: 10, max:16},
-    {time: 10, min: 15, max:16},
-    {time: 11, min: 18, max:15},
-    {time: 12, min: 10, max:15},
-    {time: 13, min: 19, max:16},
-    {time: 14, min: 10, max:20},
-    {time: 15, min: 10, max:21},
-    {time: 16, min: 14, max:25},
-    {time: 17, min: 15, max:27},
-    {time: 18, min: 16, max:20},
-    {time: 19, min: 17, max:22},
-    {time: 20, min: 13, max:20},
-    {time: 21, min: 10, max:27},
-    {time: 22, min: 15, max:26},
-    {time: 23, min: 10, max:27},
-    {time: 24, min: 10, max:20},
-    {time: 25, min: 10, max:29},
-    {time: 26, min: 25, max:40},
-    {time: 27, min: 30, max:45},
-    {time: 28, min: 19, max:40},
-    {time: 29, min: 20, max:40},
-    {time: 30, min: 14, max:48},
-    {time: 31, min: 15, max:25},
-    {time: 32, min: 10, max:20},
-    {time: 33, min: 7, max:20},
-    {time: 34, min: 5, max:10}
-  ];
+var x = d3.scale.ordinal()
+    .rangeRoundBands([0, width], .1)
+    .domain(data.map(function(d) { return d.letter; }));
 
-  var width = 960,
-      height = 500;
+var y = d3.scale.linear()
+    .range([height, 0])
+    .domain([0, d3.max(data, function(d) { return d.max; })]);
 
-  var y = d3.scale.linear()
-      .domain([0, d3.max(data, function(d) { return d.max; })])
-      .range([height, 0]);
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom")
 
-  var chart = d3.select(".chart")
-      .attr("width", width)
-      .attr("height", height);
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .ticks(10, "%");
 
-  // d3.tsv("data.tsv", type, function(error, data) {
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    var barWidth = width / data.length;
+svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxis);
 
-    var bar = chart.selectAll("g")
-        .data(data)
-      .enter().append("g")
-        .attr("transform", function(d, i) { return "translate(" + i * barWidth + ",0)"; });
+svg.append("g")
+    .attr("class", "y axis")
+    .call(yAxis)
+  .append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 6)
+    .attr("dy", ".71em")
+    .style("text-anchor", "end")
+    .text("Frequency");
 
-    bar.append("rect")
-        .attr("y", function(d) { return y(d.max); })
-        .attr("height", function(d) { return height - y(d.max); })
-        .attr("width", barWidth - 20);
+var r = svg.selectAll(".bar")
+    .data(data)
+  .enter();
 
-    bar.append("text")
-        .attr("x", barWidth / 2)
-        .attr("y", function(d) { return y(d.max) + 3; })
-        .attr("dy", ".75em")
-        .text(function(d) { return d.max; });
+  r.append("rect")
+    .attr("class", "bar")
+    .attr("x", function(d) { return x(d.letter); })
+    .attr("width", x.rangeBand())
+    .attr("y", function(d) { return y(d.max); })
+    .attr("height", function(d) { return height - y(d.max) - 1; });
+  r.append("rect")
+    .attr("class", "bar-min")
+    .attr("x", function(d) { return x(d.letter); })
+    .attr("width", x.rangeBand())
+    .attr("y", function(d) { return y(d.min); })
+    .attr("height", function(d) { return height - y(d.min) - 1; });
 
+function type(d) {
+  d.max = +d.max;
+  return d;
+}
 
-  function type(d) {
-    d.max = +d.max; // coerce to number
-    return d;
-  }
 </script>
-</body>
-</html>
