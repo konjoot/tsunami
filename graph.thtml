@@ -36,6 +36,8 @@
 
 </style>
 <body>
+</body>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
 <script>
 
@@ -43,50 +45,94 @@ var margin = {top: 20, right: 20, bottom: 30, left: 40},
     width = 760 - margin.left - margin.right,
     height = 400 - margin.top - margin.bottom;
     data = [
-      {letter: 1,  max: 0.18167, min: 0.04167},
-      {letter: 2,  max: 0.11492, min: 0.01492},
-      {letter: 3,  max: 0.12782, min: 0.02782},
-      {letter: 4,  max: 0.14253, min: 0.04253},
-      {letter: 5,  max: 0.12702, min: 0.12702},
-      {letter: 6,  max: 0.12288, min: 0.02288},
-      {letter: 7,  max: 0.12015, min: 0.02015},
-      {letter: 8,  max: 0.16094, min: 0.06094},
-      {letter: 9,  max: 0.16966, min: 0.06966},
-      {letter: 10, max: 0.10153, min: 0.00153},
-      {letter: 11, max: 0.10772, min: 0.00772},
-      {letter: 12, max: 0.14025, min: 0.04025},
-      {letter: 13, max: 0.12406, min: 0.02406},
-      {letter: 14, max: 0.16749, min: 0.06749},
-      {letter: 15, max: 0.17507, min: 0.07507},
-      {letter: 16, max: 0.11929, min: 0.01929},
-      {letter: 17, max: 0.10095, min: 0.00095},
-      {letter: 18, max: 0.15987, min: 0.05987},
-      {letter: 19, max: 0.16327, min: 0.06327},
-      {letter: 20, max: 0.19056, min: 0.09056},
-      {letter: 21, max: 0.12758, min: 0.02758},
-      {letter: 22, max: 0.10978, min: 0.00978},
-      {letter: 23, max: 0.12360, min: 0.02360},
-      {letter: 24, max: 0.10150, min: 0.00150},
-      {letter: 25, max: 0.11974, min: 0.01974},
-      {letter: 26, max: 0.12974, min: 0.02974},
-      {letter: 27, max: 0.15974, min: 0.05974},
-      {letter: 28, max: 0.11674, min: 0.11674},
-      {letter: 29, max: 0.11574, min: 0.01574},
-      {letter: 30, max: 0.11774, min: 0.11774},
-      {letter: 31, max: 0.11974, min: 0.11974},
-      {letter: 32, max: 0.11074, min: 0.01074},
-      {letter: 33, max: 0.11984, min: 0.11984},
-      {letter: 34, max: 0.11926, min: 0.11926},
-      {letter: 35, max: 0.11574, min: 0.01574},
-      {letter: 36, max: 0.11174, min: 0.01174},
-      {letter: 37, max: 0.11274, min: 0.11274},
-      {letter: 38, max: 0.11374, min: 0.11374},
-      {letter: 39, max: 0.11474, min: 0.11474},
-      {letter: 40, max: 0.11574, min: 0.11574},
-      {letter: 41, max: 0.11674, min: 0.01674},
-      {letter: 42, max: 0.11774, min: 0.01774},
-      {letter: 43, max: 0.11874, min: 0.01874},
-      {letter: 44, max: 0.10274, min: 0.00274}
+      {letter: 1,  val: 0.18167},
+      {letter: 1,  val: 0.04167},
+      {letter: 2,  val: 0.11492},
+      {letter: 2,  val: 0.01492},
+      {letter: 3,  val: 0.12782},
+      {letter: 3,  val: 0.02782},
+      {letter: 4,  val: 0.14253},
+      {letter: 4,  val: 0.04253},
+      {letter: 5,  val: 0.12702},
+      {letter: 5,  val: 0.02702},
+      {letter: 6,  val: 0.12288},
+      {letter: 6,  val: 0.02288},
+      {letter: 7,  val: 0.12015},
+      {letter: 7,  val: 0.02015},
+      {letter: 8,  val: 0.16094},
+      {letter: 8,  val: 0.06094},
+      {letter: 9,  val: 0.16966},
+      {letter: 9,  val: 0.06966},
+      {letter: 10, val: 0.10153},
+      {letter: 10, val: 0.01153},
+      {letter: 11, val: 0.10772},
+      {letter: 11, val: 0.00772},
+      {letter: 12, val: 0.14025},
+      {letter: 12, val: 0.04025},
+      {letter: 13, val: 0.12406},
+      {letter: 13, val: 0.02406},
+      {letter: 14, val: 0.16749},
+      {letter: 14, val: 0.06749},
+      {letter: 15, val: 0.17507},
+      {letter: 15, val: 0.07507},
+      {letter: 16, val: 0.11929},
+      {letter: 16, val: 0.01929},
+      {letter: 17, val: 0.10095},
+      {letter: 17, val: 0.01095},
+      {letter: 18, val: 0.15987},
+      {letter: 18, val: 0.05987},
+      {letter: 19, val: 0.16327},
+      {letter: 19, val: 0.06327},
+      {letter: 20, val: 0.19056},
+      {letter: 20, val: 0.09056},
+      {letter: 21, val: 0.12758},
+      {letter: 21, val: 0.02758},
+      {letter: 22, val: 0.10978},
+      {letter: 22, val: 0.00978},
+      {letter: 23, val: 0.12360},
+      {letter: 23, val: 0.02360},
+      {letter: 24, val: 0.10150},
+      {letter: 24, val: 0.01150},
+      {letter: 25, val: 0.11974},
+      {letter: 25, val: 0.01974},
+      {letter: 26, val: 0.12974},
+      {letter: 26, val: 0.02974},
+      {letter: 27, val: 0.15974},
+      {letter: 27, val: 0.05974},
+      {letter: 28, val: 0.11674},
+      {letter: 28, val: 0.01674},
+      {letter: 29, val: 0.11574},
+      {letter: 29, val: 0.01574},
+      {letter: 30, val: 0.11774},
+      {letter: 30, val: 0.01774},
+      {letter: 31, val: 0.11974},
+      {letter: 31, val: 0.01974},
+      {letter: 32, val: 0.11074},
+      {letter: 32, val: 0.01074},
+      {letter: 33, val: 0.11984},
+      {letter: 33, val: 0.01984},
+      {letter: 34, val: 0.11926},
+      {letter: 34, val: 0.01926},
+      {letter: 35, val: 0.11574},
+      {letter: 35, val: 0.01574},
+      {letter: 36, val: 0.11174},
+      {letter: 36, val: 0.01174},
+      {letter: 37, val: 0.11274},
+      {letter: 37, val: 0.01274},
+      {letter: 38, val: 0.11374},
+      {letter: 38, val: 0.01374},
+      {letter: 39, val: 0.11474},
+      {letter: 39, val: 0.01474},
+      {letter: 40, val: 0.11574},
+      {letter: 40, val: 0.01574},
+      {letter: 41, val: 0.11674},
+      {letter: 41, val: 0.01674},
+      {letter: 42, val: 0.11774},
+      {letter: 42, val: 0.01774},
+      {letter: 43, val: 0.11874},
+      {letter: 43, val: 0.01874},
+      {letter: 44, val: 0.10274},
+      {letter: 44, val: 0.01274}
     ];
 
 var x = d3.scale.ordinal()
@@ -95,7 +141,7 @@ var x = d3.scale.ordinal()
 
 var y = d3.scale.linear()
     .range([height, 0])
-    .domain([0, d3.max(data, function(d) { return d.max; })]);
+    .domain([0, d3.max(data, function(d) { return d.val; })]);
 
 var xAxis = d3.svg.axis()
     .scale(x)
@@ -106,47 +152,90 @@ var yAxis = d3.svg.axis()
     .orient("left")
     .ticks(10, "%");
 
-var svg = d3.select("body").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+// plot bar-chart
+var svg1 = d3.select("body").append("svg")
+      .attr("id", "barchart")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-svg.append("g")
+  svg1.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  svg1.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Frequency");
+
+  svg1.selectAll(".bar")
+    .data(data)
+    .enter()
+    .append("rect")
+      .attr("class", function(_, i) { return "bar" + (i%2 > 0 ? "-min" : "");})
+      .attr("x", function(d) { return x(d.letter) + 1; })
+      .attr("width", x.rangeBand() - 2)
+      .attr("y", function(d) { return y(d.val) })
+      .attr("height", function(d) { return height - y(d.val) - 1; });
+
+// plot line-chart
+
+svg2 = d3.select("body").append("svg")
+      .attr("id", "linechart")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+svg2.append("g")
     .attr("class", "x axis")
     .attr("transform", "translate(0," + height + ")")
     .call(xAxis);
 
-svg.append("g")
+svg2.append("g")
     .attr("class", "y axis")
-    .call(yAxis)
-  .append("text")
-    .attr("transform", "rotate(-90)")
-    .attr("y", 6)
-    .attr("dy", ".71em")
-    .style("text-anchor", "end")
-    .text("Frequency");
+    .call(yAxis);
 
-var r = svg.selectAll(".bar")
-    .data(data)
-  .enter();
+var line = d3.svg.line()
+  .x(function(d) { return x(d.letter); })
+  .y(function(d) { return y(d.val); })
+  .interpolate("basis");
 
-  r.append("rect")
-    .attr("class", "bar")
-    .attr("x", function(d) { return x(d.letter); })
-    .attr("width", x.rangeBand())
-    .attr("y", function(d) { return y(d.max); })
-    .attr("height", function(d) { return height - y(d.max) - 1; });
-  r.append("rect")
-    .attr("class", "bar-min")
-    .attr("x", function(d) { return x(d.letter); })
-    .attr("width", x.rangeBand())
-    .attr("y", function(d) { return y(d.min); })
-    .attr("height", function(d) { return height - y(d.min) - 1; });
+svg2.append('svg:path')
+  .attr('d', line(odd(data)))
+  .attr('stroke', '#FF5722')
+  .attr('stroke-width', 2)
+  .attr('fill', 'none');
 
-function type(d) {
-  d.max = +d.max;
-  return d;
+svg2.append('svg:path')
+  .attr('d', line(even(data)))
+  .attr('stroke', '#727272')
+  .attr('stroke-width', 2)
+  .attr('fill', 'none');
+
+function even(data) {
+  return select(data, function(i){ return i%2 })
+}
+
+function odd(data) {
+  return select(data, function(i){ return !(i%2) })
+}
+
+function select(data, validate) {
+  var r = [];
+
+  for (i = 0; i < data.length; i++) {
+    validate(i) && r.push(data[i]);
+  }
+
+  return r
 }
 
 </script>
