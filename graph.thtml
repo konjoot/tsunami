@@ -208,34 +208,18 @@ var line = d3.svg.line()
   .y(function(d) { return y(d.val); })
   .interpolate("basis");
 
-svg2.append('svg:path')
-  .attr('d', line(odd(data)))
-  .attr('stroke', '#FF5722')
-  .attr('stroke-width', 2)
-  .attr('fill', 'none');
+var dataGroup = d3.nest()
+  .key(function(d) {
+    return (data.indexOf(d)%2 ? "max" : "min");
+  })
+  .entries(data);
 
-svg2.append('svg:path')
-  .attr('d', line(even(data)))
-  .attr('stroke', '#727272')
-  .attr('stroke-width', 2)
-  .attr('fill', 'none');
-
-function even(data) {
-  return select(data, function(i){ return i%2 })
-}
-
-function odd(data) {
-  return select(data, function(i){ return !(i%2) })
-}
-
-function select(data, validate) {
-  var r = [];
-
-  for (i = 0; i < data.length; i++) {
-    validate(i) && r.push(data[i]);
-  }
-
-  return r
-}
+dataGroup.forEach(function(d, i) {
+  svg2.append('svg:path')
+    .attr('d', line(d.values))
+    .attr('stroke', d.key == "max" ? '#727272' : '#FF5722')
+    .attr('stroke-width', 2)
+    .attr('fill', 'none');
+});
 
 </script>
