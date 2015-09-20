@@ -70,7 +70,7 @@ func newDataFromFile(path string) []item {
 	for line.Scan() {
 		record := make(item)
 
-		// map line to item where TAB("\t") is separator
+		// map line to item where TAB("\t") is a separator
 		for i, word := range strings.Split(line.Text(), TAB) {
 			record[header[i]] = word
 		}
