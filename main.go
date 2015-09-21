@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -18,11 +19,9 @@ const (
 var graph *t.Template
 
 type (
-	data struct {
-		Items []item
-	}
-
 	item map[string]string
+
+	data []item
 )
 
 func init() {
@@ -35,37 +34,64 @@ func init() {
 func main() {
 	defer func() { exitIf(recover()) }()
 
+	// read items to draw from file
+	items, err := itemsFromFile("./data.txt")
+	exitIf(err)
+
+	// create/truncate output file
 	file, err := os.Create("graph.html")
 	defer file.Close()
 	exitIf(err)
 
-	fmt.Printf("%#v", newDataFromFile("./data.txt"))
-	// err = graph.Execute(file, &data{newDataFromFile("./data.txt")})
-	// exitIf(err)
+	// execute templete into the file
+	err = graph.Execute(file, items)
+	exitIf(err)
 }
 
-func newDataFromFile(path string) []item {
+func itemsFromFile(path string) (result data, err error) {
+	defer func() {
+		if e := recover(); e != nil {
+			if _, ok := e.(error); !ok {
+				msg := fmt.Sprintf("Something went wrong: %v", e)
+				err = errors.New(msg)
+			} else {
+				err = e.(error)
+			}
+		}
+	}()
+
+	// open file
 	file, err := os.Open(path)
-	exitIf(err)
-
 	defer file.Close()
+	panicIf(err)
 
+	// count lines in file
 	fSize, err := countLinesIn(file)
-	exitIf(err)
+	panicIf(err)
 
+	// panic if file is empty
+	if fSize <= 0 {
+		msg := fmt.Sprintf("File %s is empty", file.Name())
+		panicIf(errors.New(msg))
+	}
+
+	// rewind file
 	_, err = file.Seek(0, 0)
-	exitIf(err)
+	panicIf(err)
 
-	result := make([]item, fSize-1)
+	// initialize result
+	result = make(data, fSize-1)
 
 	// prepare scanner for file
 	line := bufio.NewScanner(file)
 
-	// header initializtion
+	// get first line
 	line.Scan()
+	// header initialization
 	header := strings.Split(line.Text(), TAB)
 
-	var n int // line number counter
+	// line number counter
+	var n int
 	// scan file and fill the result
 	for line.Scan() {
 		record := make(item)
@@ -75,29 +101,37 @@ func newDataFromFile(path string) []item {
 			record[header[i]] = word
 		}
 
-		result[n] = record // push to result
-		n++                // increment line number
+		// push to result
+		result[n] = record
+		// increment line number
+		n++
 	}
 
-	return result
+	return
 }
 
 func countLinesIn(r io.Reader) (n int, err error) {
 	var count int
 
+	// initializing read buffer
 	buf := make([]byte, 8<<10) // 8Kb
 
+	// loops forever
 	for {
+		// read len(buf) bytes
 		count, err = r.Read(buf)
 
+		// exit without error if end of file reached
 		if err == io.EOF {
 			return n, nil
 		}
 
+		// exit with error if something went wrong
 		if err != nil {
 			return
 		}
 
+		// counting lines
 		for _, b := range buf[:count] {
 			if b == EOL {
 				n++
@@ -110,5 +144,11 @@ func exitIf(err interface{}) {
 	if err != nil {
 		fmt.Println("Error: ", err)
 		os.Exit(1)
+	}
+}
+
+func panicIf(err interface{}) {
+	if err != nil {
+		panic(err)
 	}
 }
