@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"io"
 	"os"
+	"strconv"
 	"strings"
 
 	t "html/template"
@@ -21,7 +21,9 @@ var graph *t.Template
 type (
 	item map[string]string
 
-	data []item
+	dataSet map[string]map[string]int
+
+	recoverFunc func()
 )
 
 func init() {
@@ -35,52 +37,38 @@ func main() {
 	defer func() { exitIf(recover()) }()
 
 	// read items to draw from file
-	items, err := itemsFromFile("./data.txt")
+	data, err := itemsFromFile("./data.txt")
 	exitIf(err)
 
 	// create/truncate output file
 	file, err := os.Create("graph.html")
-	defer file.Close()
 	exitIf(err)
+	defer file.Close()
 
 	// execute templete into the file
-	err = graph.Execute(file, items)
+	err = graph.Execute(file, data)
 	exitIf(err)
 }
 
-func itemsFromFile(path string) (result data, err error) {
-	defer func() {
-		if e := recover(); e != nil {
-			if _, ok := e.(error); !ok {
-				msg := fmt.Sprintf("Something went wrong: %v", e)
-				err = errors.New(msg)
-			} else {
-				err = e.(error)
-			}
-		}
-	}()
+func itemsFromFile(path string) (result dataSet, err error) {
+	defer rescue(err)
 
 	// open file
 	file, err := os.Open(path)
-	defer file.Close()
 	panicIf(err)
+	defer file.Close()
 
-	// count lines in file
-	fSize, err := countLinesIn(file)
+	fileStat, err := file.Stat()
 	panicIf(err)
 
 	// panic if file is empty
-	if fSize <= 0 {
+	if fileStat.Size() <= 0 {
 		msg := fmt.Sprintf("File %s is empty", file.Name())
-		panicIf(errors.New(msg))
+		panic(errors.New(msg))
 	}
 
-	// rewind file
-	_, err = file.Seek(0, 0)
-	panicIf(err)
-
 	// initialize result
-	result = make(data, fSize-1)
+	result = make(dataSet)
 
 	// prepare scanner for file
 	line := bufio.NewScanner(file)
@@ -90,51 +78,64 @@ func itemsFromFile(path string) (result data, err error) {
 	// header initialization
 	header := strings.Split(line.Text(), TAB)
 
-	// line number counter
-	var n int
 	// scan file and fill the result
 	for line.Scan() {
 		record := make(item)
 
 		// map line to item where TAB("\t") is a separator
 		for i, word := range strings.Split(line.Text(), TAB) {
-			record[header[i]] = word
+			key := header[i]
+			if key == "seconds" || key == "ttime" {
+				record[key] = word
+			}
 		}
 
 		// push to result
-		result[n] = record
-		// increment line number
-		n++
+		result.push(record)
 	}
 
 	return
 }
 
-func countLinesIn(r io.Reader) (n int, err error) {
-	var count int
+func (d dataSet) push(i item) (err error) {
+	defer rescue(err)
 
-	// initializing read buffer
-	buf := make([]byte, 8<<10) // 8Kb
+	key := i["seconds"]
 
-	// loops forever
-	for {
-		// read len(buf) bytes
-		count, err = r.Read(buf)
+	val, err := strconv.Atoi(i["ttime"])
+	panicIf(err)
 
-		// exit without error if end of file reached
-		if err == io.EOF {
-			return n, nil
+	if _, ok := d[key]; ok {
+		if min, ok := d[key]["min"]; ok {
+			if min > val {
+				d[key]["min"] = val
+			}
+		} else {
+			d[key]["min"] = val
 		}
 
-		// exit with error if something went wrong
-		if err != nil {
-			return
+		if max, ok := d[key]["max"]; ok {
+			if max < val {
+				d[key]["max"] = val
+			}
+		} else {
+			d[key]["max"] = val
 		}
+	} else {
+		d[key] = map[string]int{"min": val, "max": val}
+	}
 
-		// counting lines
-		for _, b := range buf[:count] {
-			if b == EOL {
-				n++
+	return
+}
+
+func rescue(err error) recoverFunc {
+	return func() {
+		if e := recover(); e != nil {
+			if _, ok := e.(error); !ok {
+				msg := fmt.Sprintf("Something went wrong: %v", e)
+				err = errors.New(msg)
+			} else {
+				err = e.(error)
 			}
 		}
 	}
