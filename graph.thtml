@@ -37,12 +37,82 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
 <script>
 
-var margin = {top: 20, right: 20, bottom: 30, left: 40},
+var margin = {top: 20, right: 20, bottom: 100, left: 40},
     width = 760 - margin.left - margin.right,
-    height = 400 - margin.top - margin.bottom,
-    data = {{.}},
-    dd = Object.keys(data).map(function(d) { return {seconds: +d, min: data[d].min, max: data[d].max}; });
+    height = 500 - margin.top - margin.bottom,
+    data = {{.}};
 
+var x = d3.scale.linear()
+    .rangeRound([0, width])
+    .domain([d3.min(data.map(function(d) { return d.seconds; })), d3.max(data.map(function(d) { return d.seconds; }))]);
+
+var y = d3.scale.linear()
+    .range([height, 0])
+    .domain([-20, d3.max(data.map(function(d) { return +d.max; }))]);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom")
+    .ticks(20);
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left");
+    // .ticks(20, "ms");
+
+// plot bar-chart
+var svg1 = d3.select("body").append("svg")
+      .attr("id", "barchart")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  svg1.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis)
+      .selectAll("text")
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", "rotate(-65)" );
+
+  svg1.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Request timeout");
+
+// plot line-chart
+
+var maxLine = d3.svg.line()
+  .x(function(d) { return x(d.seconds); })
+  .y(function(d) { return y(d.max); })
+  .interpolate("monotone");
+
+var minLine = d3.svg.line()
+  .x(function(d) { return x(d.seconds); })
+  .y(function(d) { return y(d.min); })
+  .interpolate("monotone");
+
+svg1.append('svg:path')
+  .attr('d', maxLine(data.sort(function(a, b) { return b.seconds - a.seconds; })))
+  .attr('stroke', '#FF5722')
+  .attr('stroke-width', 1.5)
+  .attr('fill', 'none');
+
+svg1.append('svg:path')
+  .attr('d', minLine(data.sort(function(a, b) { return b.seconds - a.seconds; })))
+  .attr('stroke', '#727272')
+  .attr('stroke-width', 1.5)
+  .attr('fill', 'none');
+
+// left here for the story
 // var x = d3.scale.ordinal()
 //     .rangeRoundBands([0, width], .1)
 //     .domain(Object.keys(data).map(function(d) { return +d; }));
