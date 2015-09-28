@@ -21,7 +21,9 @@ var graph *t.Template
 type (
 	item map[string]string
 
-	dataSet map[string]map[string]int
+	dataItem map[string]int
+
+	dataSet map[string]dataItem
 
 	recoverFunc func()
 )
@@ -37,7 +39,7 @@ func main() {
 	defer func() { exitIf(recover()) }()
 
 	// read items to draw from file
-	data, err := itemsFromFile("./data.txt")
+	data, err := dataFromFile("./data.txt")
 	exitIf(err)
 
 	// create/truncate output file
@@ -45,12 +47,16 @@ func main() {
 	exitIf(err)
 	defer file.Close()
 
+	// convert data to array
+	out, err := data.array()
+	exitIf(err)
+
 	// execute templete into the file
-	err = graph.Execute(file, data)
+	err = graph.Execute(file, out)
 	exitIf(err)
 }
 
-func itemsFromFile(path string) (result dataSet, err error) {
+func dataFromFile(path string) (result dataSet, err error) {
 	defer rescue(err)
 
 	// open file
@@ -123,6 +129,23 @@ func (d dataSet) push(i item) (err error) {
 		}
 	} else {
 		d[key] = map[string]int{"min": val, "max": val}
+	}
+
+	return
+}
+
+func (d dataSet) array() (res []dataItem, err error) {
+	defer rescue(err)
+
+	for key, val := range d {
+		s, err := strconv.Atoi(key)
+		panicIf(err)
+
+		res = append(res,
+			dataItem{
+				"seconds": s,
+				"min":     val["min"],
+				"max":     val["max"]})
 	}
 
 	return
