@@ -1,4 +1,5 @@
 app
+data/*
 *.log
 *.html
 *.txt
