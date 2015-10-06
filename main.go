@@ -57,7 +57,7 @@ func main() {
 }
 
 func dataFromFile(path string) (result dataSet, err error) {
-	defer rescue(err)
+	defer rescue(err)()
 
 	// open file
 	file, err := os.Open(path)
@@ -104,7 +104,7 @@ func dataFromFile(path string) (result dataSet, err error) {
 }
 
 func (d dataSet) push(i item) (err error) {
-	defer rescue(err)
+	defer rescue(err)()
 
 	key := i["seconds"]
 
@@ -135,7 +135,7 @@ func (d dataSet) push(i item) (err error) {
 }
 
 func (d dataSet) array() (res []dataItem, err error) {
-	defer rescue(err)
+	defer rescue(err)()
 
 	for key, val := range d {
 		s, err := strconv.Atoi(key)
