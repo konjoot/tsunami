@@ -17,8 +17,11 @@ const (
 	EOL = '\n'
 )
 
-var graph *t.Template
-var abLogPath string
+var (
+	graph     *t.Template
+	abLogPath string
+	psLogPath string
+)
 
 type (
 	item map[string]string
@@ -34,13 +37,20 @@ func init() {
 	defer func() { exitIf(recover()) }()
 
 	flag.Usage = func() {
-		fmt.Printf("Usage: %s [-ab=path_to_ab.log]\n\n", os.Args[0])
+		fmt.Printf("Usage: %s -ab=path_to_ab.log -ps=path_to_ps.log\n", os.Args[0])
 		flag.PrintDefaults()
 	}
 
-	flag.StringVar(&abLogPath, "ab", "./ab.log", "Specify a path to the ApacheBench log")
+	flag.StringVar(&abLogPath, "ab", "", "Specifies a path to the ApacheBench log")
+	flag.StringVar(&psLogPath, "ps", "", "Specifies a path to the ps log")
 
 	flag.Parse()
+
+	// check required flags count
+	if flag.NFlag() == 0 {
+		flag.Usage()
+		panic("at least one flag should be specified.")
+	}
 
 	// some template caching there
 	graph = t.Must(t.ParseFiles("graph.thtml"))
@@ -49,8 +59,12 @@ func init() {
 func main() {
 	defer func() { exitIf(recover()) }()
 
-	// read items to draw from file
-	data, err := dataFromFile(abLogPath)
+	// read items to draw from ab log
+	abData, err := abDataFromFile(abLogPath)
+	exitIf(err)
+
+	// read items to draw from ps log
+	_, err = psDataFromFile(abLogPath)
 	exitIf(err)
 
 	// create/truncate output file
@@ -58,8 +72,8 @@ func main() {
 	exitIf(err)
 	defer file.Close()
 
-	// convert data to array
-	out, err := data.array()
+	// convert abData to array
+	out, err := abData.array()
 	exitIf(err)
 
 	// execute templete into the file
@@ -67,7 +81,15 @@ func main() {
 	exitIf(err)
 }
 
-func dataFromFile(path string) (result dataSet, err error) {
+func psDataFromFile(path string) (result dataSet, err error) {
+	defer rescue(err)()
+
+	err = errors.New("psDataFromFile - not implemented :(")
+
+	return
+}
+
+func abDataFromFile(path string) (result dataSet, err error) {
 	defer rescue(err)()
 
 	// open file
