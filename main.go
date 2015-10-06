@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"errors"
+	"flag"
 	"fmt"
 	"os"
 	"strconv"
@@ -17,6 +18,7 @@ const (
 )
 
 var graph *t.Template
+var abLogPath string
 
 type (
 	item map[string]string
@@ -31,6 +33,15 @@ type (
 func init() {
 	defer func() { exitIf(recover()) }()
 
+	flag.Usage = func() {
+		fmt.Printf("Usage: %s [-ab=path_to_ab.log]\n\n", os.Args[0])
+		flag.PrintDefaults()
+	}
+
+	flag.StringVar(&abLogPath, "ab", "./ab.log", "Specify a path to the ApacheBench log")
+
+	flag.Parse()
+
 	// some template caching there
 	graph = t.Must(t.ParseFiles("graph.thtml"))
 }
@@ -39,7 +50,7 @@ func main() {
 	defer func() { exitIf(recover()) }()
 
 	// read items to draw from file
-	data, err := dataFromFile("./data.txt")
+	data, err := dataFromFile(abLogPath)
 	exitIf(err)
 
 	// create/truncate output file
