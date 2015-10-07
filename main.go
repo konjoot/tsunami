@@ -26,9 +26,11 @@ var (
 type (
 	item map[string]string
 
-	dataItem map[string]int
+	dataItem map[string]float32
 
-	dataSet map[string]dataItem
+	abDataSet map[string]dataItem
+
+	psDataSet map[string]dataItem
 
 	recoverFunc func()
 )
@@ -81,16 +83,13 @@ func main() {
 	exitIf(err)
 }
 
-func psDataFromFile(path string) (result dataSet, err error) {
+func psDataFromFile(path string) (result psDataSet, err error) {
 	defer rescue(err)()
 
-	err = errors.New("psDataFromFile - not implemented :(")
-
-	return
-}
-
-func abDataFromFile(path string) (result dataSet, err error) {
-	defer rescue(err)()
+	// ignore empty path
+	if len(path) == 0 {
+		return
+	}
 
 	// open file
 	file, err := os.Open(path)
@@ -107,7 +106,69 @@ func abDataFromFile(path string) (result dataSet, err error) {
 	}
 
 	// initialize result
-	result = make(dataSet)
+	result = make(psDataSet)
+
+	// prepare scanner for file
+	line := bufio.NewScanner(file)
+
+	// get first line
+	line.Scan()
+
+	// header initialization
+	header := strings.Split(line.Text(), TAB)
+
+	// needed fields
+	fields := map[string]struct{}{
+		"seconds": {},
+		"%mem":    {},
+		"psr":     {},
+		"pcpu":    {},
+	}
+
+	// scan file and fill the result
+	for line.Scan() {
+		record := make(item)
+
+		// map line to item where TAB("\t") is a separator
+		for i, word := range strings.Split(line.Text(), TAB) {
+			key := header[i]
+
+			if _, ok := fields[key]; ok {
+				record[key] = word
+			}
+		}
+
+		// push to result
+		result.push(record) // pending
+	}
+
+	return
+}
+
+func abDataFromFile(path string) (result abDataSet, err error) {
+	defer rescue(err)()
+
+	// ignore empty path
+	if len(path) == 0 {
+		return
+	}
+
+	// open file
+	file, err := os.Open(path)
+	panicIf(err)
+	defer file.Close()
+
+	fileStat, err := file.Stat()
+	panicIf(err)
+
+	// panic if file is empty
+	if fileStat.Size() <= 0 {
+		msg := fmt.Sprintf("File %s is empty", file.Name())
+		panic(errors.New(msg))
+	}
+
+	// initialize result
+	result = make(abDataSet)
 
 	// prepare scanner for file
 	line := bufio.NewScanner(file)
@@ -136,7 +197,7 @@ func abDataFromFile(path string) (result dataSet, err error) {
 	return
 }
 
-func (d dataSet) push(i item) (err error) {
+func (d abDataSet) push(i item) (err error) {
 	defer rescue(err)()
 
 	key := i["seconds"]
@@ -167,7 +228,7 @@ func (d dataSet) push(i item) (err error) {
 	return
 }
 
-func (d dataSet) array() (res []dataItem, err error) {
+func (d abDataSet) array() (res []dataItem, err error) {
 	defer rescue(err)()
 
 	for key, val := range d {
