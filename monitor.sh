@@ -11,7 +11,7 @@ if [ ! -w "$file" ] ; then
     exit 1
 fi
 
-echo 'pid	psr	c	pcpu	state	nlwp	vsz	rss	size	%mem	args	time' > $file
+echo 'pid	psr	c	pcpu	state	nlwp	vsz	rss	size	%mem	args	seconds' > $file
 
 cleanup () {
   kill -s SIGTERM $!
