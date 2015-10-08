@@ -33,6 +33,11 @@ type (
 	psDataSet map[string]dataItem
 
 	recoverFunc func()
+
+	dt struct {
+		Ab []dataItem
+		Ps []dataItem
+	}
 )
 
 func init() {
@@ -66,7 +71,7 @@ func main() {
 	exitIf(err)
 
 	// read items to draw from ps log
-	_, err = psDataFromFile(abLogPath)
+	psData, err := psDataFromFile(psLogPath)
 	exitIf(err)
 
 	// create/truncate output file
@@ -75,11 +80,15 @@ func main() {
 	defer file.Close()
 
 	// convert abData to array
-	out, err := abData.array()
+	abArr, err := abData.array()
+	exitIf(err)
+
+	// convert psData to array
+	psArr, err := psData.array()
 	exitIf(err)
 
 	// execute templete into the file
-	err = graph.Execute(file, out)
+	err = graph.Execute(file, &dt{Ab: abArr, Ps: psArr})
 	exitIf(err)
 }
 
@@ -236,6 +245,8 @@ func (d psDataSet) push(i item) (err error) {
 func (d psDataSet) array() (res []dataItem, err error) {
 	defer rescue(err)()
 
+	res = make([]dataItem, 0)
+
 	for key, val := range d {
 		s, err := strconv.ParseFloat(key, 64)
 		panicIf(err)
@@ -285,6 +296,8 @@ func (d abDataSet) push(i item) (err error) {
 
 func (d abDataSet) array() (res []dataItem, err error) {
 	defer rescue(err)()
+
+	res = make([]dataItem, 0)
 
 	for key, val := range d {
 		s, err := strconv.ParseFloat(key, 64)
