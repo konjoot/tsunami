@@ -24,7 +24,7 @@ trap cleanup SIGINT SIGTERM
 
 while [ 1 ]
 do
-    ps -C kami -L -o pid,psr,c,pcpu,state,nlwp,vsz,rss,size,%mem,args | sed 1d | sed "s/$/ `date +%s`/" >> $file
-    sleep 1 &
-    wait $!
+  ps -C kami -L -o pid,psr,c,pcpu,state,nlwp,vsz,rss,size,%mem,args | sed 1d | sed "s/ \+/\t/g" | sed "s/$/\t`date +%s`/" >> $file
+  sleep 1 &
+  wait $!
 done
