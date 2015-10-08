@@ -40,15 +40,16 @@
 var margin = {top: 20, right: 20, bottom: 100, left: 40},
     width = 760 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom,
-    data = {{.}};
+    abData = {{.Ab}};
+    psData = {{.Ps}};
 
 var x = d3.scale.linear()
     .rangeRound([0, width])
-    .domain([d3.min(data.map(function(d) { return d.seconds; })), d3.max(data.map(function(d) { return d.seconds; }))]);
+    .domain([d3.min(abData.map(function(d) { return d.seconds; })), d3.max(abData.map(function(d) { return d.seconds; }))]);
 
 var y = d3.scale.linear()
     .range([height, 0])
-    .domain([-20, d3.max(data.map(function(d) { return +d.max; }))]);
+    .domain([-20, d3.max(abData.map(function(d) { return +d.max; }))]);
 
 var xAxis = d3.svg.axis()
     .scale(x)
@@ -101,13 +102,13 @@ var minLine = d3.svg.line()
   .interpolate("monotone");
 
 svg1.append('svg:path')
-  .attr('d', maxLine(data.sort(function(a, b) { return b.seconds - a.seconds; })))
+  .attr('d', maxLine(abData.sort(function(a, b) { return b.seconds - a.seconds; })))
   .attr('stroke', '#FF5722')
   .attr('stroke-width', 1.5)
   .attr('fill', 'none');
 
 svg1.append('svg:path')
-  .attr('d', minLine(data.sort(function(a, b) { return b.seconds - a.seconds; })))
+  .attr('d', minLine(abData.sort(function(a, b) { return b.seconds - a.seconds; })))
   .attr('stroke', '#727272')
   .attr('stroke-width', 1.5)
   .attr('fill', 'none');
