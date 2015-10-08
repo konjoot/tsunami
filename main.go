@@ -26,7 +26,7 @@ var (
 type (
 	item map[string]string
 
-	dataItem map[string]float32
+	dataItem map[string]float64
 
 	abDataSet map[string]dataItem
 
@@ -139,7 +139,7 @@ func psDataFromFile(path string) (result psDataSet, err error) {
 		}
 
 		// push to result
-		result.push(record) // pending
+		result.push(record)
 	}
 
 	return
@@ -197,12 +197,67 @@ func abDataFromFile(path string) (result abDataSet, err error) {
 	return
 }
 
+func (d psDataSet) push(i item) (err error) {
+	defer rescue(err)()
+
+	key, ok := i["seconds"]
+	if !ok {
+		return errors.New("Unexpected format, 'seconds' key not found")
+	}
+
+	psr, ok := i["psr"]
+	if !ok {
+		return errors.New("Unexpected format, 'psr' key not found")
+	}
+	psrKey := "psr_" + psr
+
+	mem, err := strconv.ParseFloat(i["%mem"], 64)
+	panicIf(err)
+
+	pcpu, err := strconv.ParseFloat(i["pcpu"], 64)
+	panicIf(err)
+
+	if _, ok := d[key]; ok {
+		if _, ok := d[key][psrKey]; ok {
+			d[key][psrKey] += pcpu
+		} else {
+			d[key][psrKey] = pcpu
+		}
+	} else {
+		d[key] = dataItem{
+			psrKey: pcpu,
+			"%mem": mem,
+		}
+	}
+
+	return
+}
+
+func (d psDataSet) array() (res []dataItem, err error) {
+	defer rescue(err)()
+
+	for key, val := range d {
+		s, err := strconv.ParseFloat(key, 64)
+		panicIf(err)
+
+		data := dataItem{key: s}
+
+		for k, v := range val {
+			data[k] = v
+		}
+
+		res = append(res, data)
+	}
+
+	return
+}
+
 func (d abDataSet) push(i item) (err error) {
 	defer rescue(err)()
 
 	key := i["seconds"]
 
-	val, err := strconv.Atoi(i["ttime"])
+	val, err := strconv.ParseFloat(i["ttime"], 64)
 	panicIf(err)
 
 	if _, ok := d[key]; ok {
@@ -222,7 +277,7 @@ func (d abDataSet) push(i item) (err error) {
 			d[key]["max"] = val
 		}
 	} else {
-		d[key] = map[string]int{"min": val, "max": val}
+		d[key] = dataItem{"min": val, "max": val}
 	}
 
 	return
@@ -232,7 +287,7 @@ func (d abDataSet) array() (res []dataItem, err error) {
 	defer rescue(err)()
 
 	for key, val := range d {
-		s, err := strconv.Atoi(key)
+		s, err := strconv.ParseFloat(key, 64)
 		panicIf(err)
 
 		res = append(res,
