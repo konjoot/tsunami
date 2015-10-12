@@ -129,7 +129,7 @@ func psDataFromFile(path string) (result psDataSet, err error) {
 	// needed fields
 	fields := map[string]struct{}{
 		"seconds": {},
-		"%mem":    {},
+		"rss":     {},
 		"psr":     {},
 		"pcpu":    {},
 	}
@@ -220,7 +220,7 @@ func (d psDataSet) push(i item) (err error) {
 	}
 	psrKey := "psr_" + psr
 
-	mem, err := strconv.ParseFloat(i["%mem"], 64)
+	mem, err := strconv.ParseFloat(i["rss"], 64)
 	panicIf(err)
 
 	pcpu, err := strconv.ParseFloat(i["pcpu"], 64)
@@ -235,7 +235,7 @@ func (d psDataSet) push(i item) (err error) {
 	} else {
 		d[key] = dataItem{
 			psrKey: pcpu,
-			"%mem": mem,
+			"mem":  mem,
 		}
 	}
 
