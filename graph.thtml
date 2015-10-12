@@ -43,75 +43,81 @@ var margin = {top: 20, right: 20, bottom: 100, left: 40},
     abData = {{.Ab}};
     psData = {{.Ps}};
 
-var x = d3.scale.linear()
-    .rangeRound([0, width])
-    .domain([d3.min(abData.map(function(d) { return d.seconds; })), d3.max(abData.map(function(d) { return d.seconds; }))]);
+if abData.length > 0 {
+    var x = d3.scale.linear()
+      .rangeRound([0, width])
+      .domain([d3.min(abData.map(function(d) { return d.seconds; })), d3.max(abData.map(function(d) { return d.seconds; }))]);
 
-var y = d3.scale.linear()
-    .range([height, 0])
-    .domain([-20, d3.max(abData.map(function(d) { return +d.max; }))]);
+  var y = d3.scale.linear()
+      .range([height, 0])
+      .domain([-20, d3.max(abData.map(function(d) { return +d.max; }))]);
 
-var xAxis = d3.svg.axis()
-    .scale(x)
-    .orient("bottom")
-    .ticks(20);
+  var xAxis = d3.svg.axis()
+      .scale(x)
+      .orient("bottom")
+      .ticks(20);
 
-var yAxis = d3.svg.axis()
-    .scale(y)
-    .orient("left");
-    // .ticks(20, "ms");
+  var yAxis = d3.svg.axis()
+      .scale(y)
+      .orient("left");
+      // .ticks(20, "ms");
 
-// plot bar-chart
-var svg1 = d3.select("body").append("svg")
-      .attr("id", "barchart")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  // plot bar-chart
+  var svg1 = d3.select("body").append("svg")
+        .attr("id", "barchart")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  svg1.append("g")
-      .attr("class", "x axis")
-      .attr("transform", "translate(0," + height + ")")
-      .call(xAxis)
-      .selectAll("text")
+    svg1.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis)
+        .selectAll("text")
+          .style("text-anchor", "end")
+          .attr("dx", "-.8em")
+          .attr("dy", ".15em")
+          .attr("transform", "rotate(-65)" );
+
+    svg1.append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
+      .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", ".71em")
         .style("text-anchor", "end")
-        .attr("dx", "-.8em")
-        .attr("dy", ".15em")
-        .attr("transform", "rotate(-65)" );
+        .text("Request timeout");
 
-  svg1.append("g")
-      .attr("class", "y axis")
-      .call(yAxis)
-    .append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", ".71em")
-      .style("text-anchor", "end")
-      .text("Request timeout");
+  // plot line-chart
 
-// plot line-chart
+  var maxLine = d3.svg.line()
+    .x(function(d) { return x(d.seconds); })
+    .y(function(d) { return y(d.max); })
+    .interpolate("monotone");
 
-var maxLine = d3.svg.line()
-  .x(function(d) { return x(d.seconds); })
-  .y(function(d) { return y(d.max); })
-  .interpolate("monotone");
+  var minLine = d3.svg.line()
+    .x(function(d) { return x(d.seconds); })
+    .y(function(d) { return y(d.min); })
+    .interpolate("monotone");
 
-var minLine = d3.svg.line()
-  .x(function(d) { return x(d.seconds); })
-  .y(function(d) { return y(d.min); })
-  .interpolate("monotone");
+  svg1.append('svg:path')
+    .attr('d', maxLine(abData.sort(function(a, b) { return b.seconds - a.seconds; })))
+    .attr('stroke', '#FF5722')
+    .attr('stroke-width', 1.5)
+    .attr('fill', 'none');
 
-svg1.append('svg:path')
-  .attr('d', maxLine(abData.sort(function(a, b) { return b.seconds - a.seconds; })))
-  .attr('stroke', '#FF5722')
-  .attr('stroke-width', 1.5)
-  .attr('fill', 'none');
+  svg1.append('svg:path')
+    .attr('d', minLine(abData.sort(function(a, b) { return b.seconds - a.seconds; })))
+    .attr('stroke', '#727272')
+    .attr('stroke-width', 1.5)
+    .attr('fill', 'none');
+}
 
-svg1.append('svg:path')
-  .attr('d', minLine(abData.sort(function(a, b) { return b.seconds - a.seconds; })))
-  .attr('stroke', '#727272')
-  .attr('stroke-width', 1.5)
-  .attr('fill', 'none');
+if abData > 0 {}
+
+
 
 // left here for the story
 // var x = d3.scale.ordinal()
