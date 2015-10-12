@@ -251,7 +251,7 @@ func (d psDataSet) array() (res []dataItem, err error) {
 		s, err := strconv.ParseFloat(key, 64)
 		panicIf(err)
 
-		data := dataItem{key: s}
+		data := dataItem{"seconds": s}
 
 		for k, v := range val {
 			data[k] = v
